@@ -17,5 +17,5 @@
 (deftest test-supports-json-datatype
   (is (= (supports-json-datatype? "mysql" "8.0.21-cluster") true))
   (is (= (supports-json-datatype? "mysql" "5.0.21-cluster") false))
-  (is (= (supports-json-datatype? "oracle" "1000000") false))
+  (is (= (supports-json-datatype? "oracle" "100000") false))
   (is (= (supports-json-datatype? "mysql" "I-dont-have-a-valid-version") false)))
