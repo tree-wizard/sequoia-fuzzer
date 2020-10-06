@@ -6,11 +6,11 @@
    [couplet.core :as couplet]
    [db-fuzzer.rent-an-atom :as rent-an-atom]))
 
-(defn replace-at [s pos c]
-  (let [split (split-at pos s)
+(defn replace-at [string pos char]
+  (let [split (split-at pos string)
         lhs (first split)
         rhs (rest (second split))]
-    (apply str (concat lhs [c] rhs))))
+    (apply str (concat lhs [char] rhs))))
 
 (deftest test-replace-at
   (is (= (replace-at "an_underscore" 2 " ") "an underscore")))

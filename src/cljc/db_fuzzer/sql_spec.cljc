@@ -7,6 +7,7 @@
             [db-fuzzer.platform-specific-behavior :as platform-specific-behavior]
             [db-fuzzer.rent-an-atom :as rent-an-atom]
             [db-fuzzer.mungers :as mungers]
+            [db-fuzzer.mutations :as mutate]
             [couplet.core :as couplet]))
 
 ;; Utility fns
@@ -37,62 +38,6 @@
   "Pass in a function for f. You may have to do (var-get (find-var (symbol f-name))) if f-name is a string with your function name."
   [f arity]
   (not (empty? (filter #(= % arity) (map count (:arglists (meta f)))))))
-
-;; ;; binary mungers
-;; (defn replace-at [s pos c]
-;;   (let [split (split-at pos s)
-;;         lhs (first split)
-;;         rhs (rest (second split))]
-;;     (apply str (concat lhs [c] rhs))))
-
-;; (deftest test-replace-at
-;;   (is (= (replace-at "an_underscore" 2 " ") "an underscore")))
-
-;; (defn munge-rand-char-ascii [s]
-;;   (let [split (split-at (rand-int (count s)) s)
-;;         lhs (first split)
-;;         rhs (rest (second split))]
-;;     (apply str (concat lhs [(char (rand-int 255))] rhs))))
-
-;; (defn munge-rand-char-unicode [s]
-;;   (let [split (split-at (rand-int (count s)) s)
-;;         lhs (first split)
-;;         rhs (rest (second split))]
-;;     (apply str (concat lhs [(couplet/to-str
-;;                              (gen/sample
-;;                               (s/gen :couplet.core/codepoint)
-;;                               (inc (rand-int 5))))]
-;;                        rhs))))
-
-;; ;; wrap-munge is middleware for your :value context hooks.
-;; ;; It's not in the standard pattern of middleware due to some Clojure limitations
-;; ;; around eval'ing partial functions.
-;; (defn wrap-munge [f introspection {:keys [shared-state-token] :as context}]
-;;   (if (and shared-state-token
-;;            (= 0 (rand-int 1)) ;; only try ot munge sometimes so that munging happens throughout the query
-;;            (rent-an-atom/try-get-munge-permission! shared-state-token))
-;;     (munge-rand-char-unicode (f introspection context))
-;; ;;    (munge-rand-char-ascii (f introspection context))
-;;     (f introspection context)))
-
-;; (defn whitespace-swap
-;;   "Randomly picks a standard ASCII 32 whitespace and swaps it with a unicode whitespace."
-;;   [s]
-;;   (let [unicode-whitespaces [160 8192 8193 8194 8195 8196 8197 8198 8199 8200 8201 8202 8232 8287 12288] ;; See https://emptycharacter.com/ for a good reference on unicode whitespaces
-;;         whitespace-positions
-;;         (->> (map-indexed (fn [idx itm] [idx itm]) s) ;; assign a position to each letter
-;;          (filter (fn [[idx itm]] (= itm (char 32)))) ;; filter down to just the spaces
-;;          (map first)) ;; grab the positions
-;;         chosen-whitespace-position
-;;         (when (not (empty? whitespace-positions)) (rand-nth whitespace-positions))
-;;         ]
-;;     (if chosen-whitespace-position
-;;       (replace-at s chosen-whitespace-position (couplet/to-str [(rand-nth unicode-whitespaces)]))
-;;       s)))
-
-;; (deftest test-whitespace-swap
-;;   (is (= (whitespace-swap "cat") "cat"))
-;;   (is (not (= (whitespace-swap "the cat in the hat") "the cat in the hat"))))
 
 ;; ------------------------------------------
 ;; Pre-defined low-level generation functions
@@ -407,7 +352,8 @@
 ;; The simplest is the :value context hook.
 ;; Each :value context hook is associated with a rule.
 ;; When the hook is present, the rule execute its :value hook function rather than continuing normal AST-based evaluation.
-;; A example of a value hook in use is the column-name rule. Sometimes we need column-name to be a column belonging to a certain table. Other times (for example, when no introspection object is based in) we need to simply generate a random column name.
+;; A example of a value hook in use is the column-name rule. Sometimes we need column-name to be a column belonging to a certain table.
+;; Other times (for example, when no introspection object is based in) we need to simply generate a random column name.
 ;;
 ;; How does a :value context hook know what the context is?
 ;; Via the context map of course!!
@@ -417,7 +363,8 @@
 ;;    An example use of this is for generating query-unique table alias-names.
 ;; -- AST-node-and-below data: this is stored directly in the context map. Basically any key besides :shared-state-token.
 ;;    This data is set by a rules :mutate value hook function and passes context to its constituent elements.
-;;    For example, the "select" rule picks a table and puts it into the context for all it's downstream children to access and use (so that things like column-name can pick a column from the chosen table.
+;;    For example, the "select" rule picks a table and puts it into the context for all it's downstream children to
+;;    access and use (so that things like column-name can pick a column from the chosen table.
 ;;
 ;; There's another type of context hook called :alternation context hooks.
 ;; Consider the following BNF rule for table-reference:

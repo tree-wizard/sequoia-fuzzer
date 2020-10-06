@@ -16,7 +16,7 @@
 (s/def ::exact-numeric-type #{:numeric :decimal :dec :integer :int :tinyint :smallint :mediumint :bigint})
 (s/def ::approximate-numeric-type #{:float :real :double})
 (s/def ::numeric-type (s/or :exact-numeric-type ::exact-numeric-type
-                             :approximate-numeric-type ::approximate-numeric-type))
+                            :approximate-numeric-type ::approximate-numeric-type))
 (s/def ::datetime-type #{:date :time :timestamp})
 (s/def ::data-type (s/or ::character-string-type ::character-string-type
                          ::bit-string-type ::bit-string-type
@@ -41,32 +41,32 @@
   {:platform "mysql"
    :version "8.0.21-cluster"
    :tables
-   {:wp_snippets
-    {:id
-     {:nullable? false,
-      :data-type :mediumint,
-      :char-max-length nil,
-      :numeric-precision 7},
-     :snippet
-     {:nullable? false,
-      :data-type :varchar,
-      :char-max-length 255,
-      :numeric-precision nil},
-     :audio_attachment_id
-     {:nullable? false,
-      :data-type :bigint,
-      :char-max-length nil,
-      :numeric-precision 19},
-     :user_id
-     {:nullable? false,
-      :data-type :bigint,
-      :char-max-length nil,
-      :numeric-precision 19},
-     :user_display_name
-     {:nullable? false,
-      :data-type :varchar,
-      :char-max-length 250,
-      :numeric-precision nil}}}})
+             {:wp_snippets
+              {:id
+               {:nullable? false,
+                :data-type :mediumint,
+                :char-max-length nil,
+                :numeric-precision 7},
+               :snippet
+               {:nullable? false,
+                :data-type :varchar,
+                :char-max-length 255,
+                :numeric-precision nil},
+               :audio_attachment_id
+               {:nullable? false,
+                :data-type :bigint,
+                :char-max-length nil,
+                :numeric-precision 19},
+               :user_id
+               {:nullable? false,
+                :data-type :bigint,
+                :char-max-length nil,
+                :numeric-precision 19},
+               :user_display_name
+               {:nullable? false,
+                :data-type :varchar,
+                :char-max-length 250,
+                :numeric-precision nil}}}})
 
 (defn columns-from-mysql-table
   "Reads column metadata from a MySQL table.
@@ -81,22 +81,22 @@
                      (name table-name)
                      table-name)]
     (as-> (jdbc/execute! db ["select COLUMN_NAME, IS_NULLABLE, DATA_TYPE, CHARACTER_MAXIMUM_LENGTH, NUMERIC_PRECISION from information_schema.columns where TABLE_NAME=?;" table-name]) $
-      (map (fn [column-map]
-             {(keyword (:COLUMNS/COLUMN_NAME column-map))
-              {:nullable? (= "YES" (:COLUMNS/IS_NULLABLE column-map))
-               :data-type (keyword (:COLUMNS/DATA_TYPE column-map))
-               :char-max-length (:COLUMNS/CHARACTER_MAXIMUM_LENGTH column-map)
-               :numeric-precision (:COLUMNS/NUMERIC_PRECISION column-map)}}) $) 
-      (apply merge $))))
+          (map (fn [column-map]
+                 {(keyword (:COLUMNS/COLUMN_NAME column-map))
+                  {:nullable? (= "YES" (:COLUMNS/IS_NULLABLE column-map))
+                   :data-type (keyword (:COLUMNS/DATA_TYPE column-map))
+                   :char-max-length (:COLUMNS/CHARACTER_MAXIMUM_LENGTH column-map)
+                   :numeric-precision (:COLUMNS/NUMERIC_PRECISION column-map)}}) $)
+          (apply merge $))))
 
 (defn introspect-mysql [db]
   (let [tables
         (as-> (jdbc/execute! db ["select table_name from information_schema.tables where table_schema = ?;" (:dbname db)]) $
-          (mapv :TABLES/TABLE_NAME $)
-          (map (fn [table-name]
-                 {(keyword table-name) (columns-from-mysql-table db table-name)}) $)
-          (apply merge $))
-        
+              (mapv :TABLES/table_name $)
+              (map (fn [table-name]
+                     {(keyword table-name) (columns-from-mysql-table db table-name)}) $)
+              (apply merge $))
+
         version (get (first (jdbc/execute! db ["select @@version;"])) (keyword "@@version"))]
     {:tables tables
      :version version
@@ -105,11 +105,11 @@
 (defn introspect-mariadb [db]
   (let [tables
         (as-> (jdbc/execute! db ["select table_name from information_schema.tables where table_schema = ?;" (:dbname db)]) $
-          (mapv :TABLES/table_name $)
-          (map (fn [table-name]
-                 {(keyword table-name) (columns-from-mysql-table db table-name)}) $)
-          (apply merge $))
-        
+              (mapv :TABLES/table_name $)
+              (map (fn [table-name]
+                     {(keyword table-name) (columns-from-mysql-table db table-name)}) $)
+              (apply merge $))
+
         version (get (first (jdbc/execute! db ["select @@version;"])) (keyword "@@version"))]
     {:tables tables
      :version version
@@ -121,6 +121,9 @@
           "mysql" (introspect-mysql db)
           "mariadb" (introspect-mariadb db)
           nil)]
-    (if (s/valid? ::introspection introspection) ;; Note: if the spec above gets too hard to maintain or you just want to skip the check, comment out this if statement and just return introspection. The purpose of this check is to pinpoint introspection errors early rather than wading through query output and wondering if the generator functions are broken.
+    (if (s/valid? ::introspection introspection) ;; Note: if the spec above gets too hard to maintain
+      ;; or you just want to skip the check, comment out this if statement and just return introspection.
+      ;; The purpose of this check is to pinpoint introspection errors early rather than wading through query
+      ;; output and wondering if the generator functions are broken.
       introspection
       (throw (Exception. "Introspection failed the spec: " (s/explain ::introspection introspection))))))

@@ -15,10 +15,12 @@
   (:gen-class))
 
 ;; TODO take these next two statements out before shipping -- they're jus tfor plaing at my REPL.
+;; there are the keys for connecting to the database.
 (def db {:dbtype "mysql"
-         :dbname "playground"
-         :user   "test"
-         :password "test"})
+         :dbname "myTable"
+         :user   "x"
+         :password "Nccp4ssword!"
+         :host "192.168.86.56"})
 
 (def logging-db
   {:classname   "org.sqlite.JDBC"
@@ -28,28 +30,28 @@
 
 (defn create-logging-db-if-needed []
   (try (sqlite-jdbc/db-do-commands
-        logging-db
-        "create table if not exists queries(
-            id integer primary key,
-            result boolean not null,
-            query text not null,
-            error text null,
-            comment null);"
-        )
+         logging-db
+         "create table if not exists queries(
+             id integer primary key,
+             result boolean not null,
+             query text not null,
+             error text null,
+             comment null);"
+         )
        (catch Exception e
          (println (.getMessage e)))))
 
 (defn log-query [result query error]
   (try (sqlite-jdbc/db-do-commands
-        logging-db
-        (str
-         "insert into queries (result,query,error) values (\""
-         result
-         "\",\""
-         (clojure.string/replace query #"\"" "") ;; get rid of quotes since those will confuse SQLite
-         "\",\""
-         error
-         "\");"))
+         logging-db
+         (str
+           "insert into queries (result,query,error) values (\""
+           result
+           "\",\""
+           (clojure.string/replace query #"\"" "") ;; get rid of quotes since those will confuse SQLite
+           "\",\""
+           error
+           "\");"))
        (catch Exception e
          (println (.getMessage e)))))
 
@@ -59,10 +61,11 @@
              :from   ["wp-snippets"]
              :where  [:= :f.a "baz"]})
 
-(defn test-runner [{:keys [dbtype dbname user password number show-results log-to-sqlite] :as opts}
+(defn test-runner [{:keys [host dbtype dbname user password number show-results log-to-sqlite] :as params}
                    {:keys [gen-fn output-type error-message-pass-fn] :as generator}]
   (when log-to-sqlite (create-logging-db-if-needed))
-  (let [db {:dbtype dbtype
+  (let [db {:host host
+            :dbtype dbtype
             :dbname dbname
             :user user
             :password password}
@@ -110,11 +113,16 @@
                      "\n             Available Generators:"
                      "\n             --------------------\n"
                      (apply str (interpose
-                                 "\n"
-                                 (map (fn [k] (str "             " k))
-                                      (keys generate/generators)))))
+                                  "\n"
+                                  (map (fn [k] (str "             " k))
+                                       (keys generate/generators)))))
    :version "0.1.0-SNAPSHOT"
-   :opts [{:as "user"
+   :opts [{:as "host"
+           :default :present
+           :option "host"
+           :short "h"
+           :type :string}
+          {:as "user"
            :default :present ;; :present means that it's a required param
            :option "user"
            :short "u"
@@ -124,9 +132,7 @@
            :option "password"
            :short "p"
            :type :string}
-          {:as "Database platform
-   mysql
-   mariadb"
+          {:as "Database platform mysql mariadb"
            :default :present
            :option "dbtype"
            :short "t"

@@ -73,7 +73,7 @@
        ;; (println "gen-complete: " (first introspection) table alias-atom)
        ;; (println complexity complexity-tokens (count (filter #(= :join %) complexity-tokens)))
        (merge
-        {:select [:*]
+        {:select [:*]                                       ;;can i replace
          :from   [table]
          :join (vec (apply concat (repeatedly
                                    (count (filter #(= :join %) complexity-tokens)) ;; run gen-join for each time :join was picked as a complexity token
@@ -102,7 +102,7 @@
   (as-> (gen/generate (s/gen string?)) $
     (cond
       (re-matches #"^[0-9]*$" $) (str "a" $) ;; sql table names can't be solely numeric or empty
-      :efault $)))
+      :default $)))
 
 (defn mysql-create-table
   ([introspection]
