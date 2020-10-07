@@ -91,19 +91,18 @@ This functionality is in development but examples can be seen below from the REP
 ```
 
 ### Code walkthrough
-  ./src/clj/db_fuzzer/core.clj contains the test runner engine and CLI-related functionality.
+  **./src/clj/db_fuzzer/core.clj** contains the test runner engine and CLI-related functionality.
+  
+  **./src/clj/db_fuzzer/introspect.clj** contains code for reading in metadata (such as tables and columns) from the target database for use in query construction.
+  
+  **./src/cljc/db_fuzzer/generate.cljc** contains the configuration map of available generators (used in core.clj) and defines a couple of hand-written query generator functions.
+  
+  **./src/cljc/db_fuzzer/sql_spec.cljc** contains SQL BNF and code that parses that BNF and turns each rule into a generator function.
+  
+  **./src/mutations.cljc** - a series of string and integer mutators. This allows us to mutate strings and repalce numbers with known bad values such as:
   
   
-  ./src/clj/db_fuzzer/introspect.clj contains code for reading in metadata (such as tables and columns) from the target database for use in query construction.
-  
-  ./src/cljc/db_fuzzer/generate.cljc contains the configuration map of available generators (used in core.clj) and defines a couple of hand-written query generator functions.
-  
-  ./src/cljc/db_fuzzer/sql_spec.cljc contains SQL BNF and code that parses that BNF and turns each rule into a generator function.
-  
-  ./src/mutations.clj - a series of string and integer mutators. This allows us to mutate strings and repalce numbers with known bad values such as:
-  
-  
-  ./src/query-mutator.clj - contains the mutation-fuzz function which is used to integrate diffent fuzzing engines.
+  **./src/query-mutator.cljc** - contains the mutation-fuzz function which is used to integrate diffent fuzzing engines.
 
 
 
