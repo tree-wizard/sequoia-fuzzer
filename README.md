@@ -75,6 +75,21 @@ To further expand the fuzzing capabilities the team is designed the mutations to
 This functionality is in development but examples can be seen below from the REPL:
 
 
+```
+% (mutation-fuzz db db-intro)
+
+{:select [:*], :from [:myTa$'$`$&$&$&%d'xcalc!!$&+inf\x0a$+$+$+'xcalc$1!!myTa$'$`$&$&$&%d'xcalc!!$&+inf\x0a$+$+$+'xcalc$1!!myTa$'$`$&$&$&%d'xcalc!!$&+inf\x0a$+$+$+'xcalc$1!!myTa$'$`$&$&$&%d'xcalc!!$&+inf\x0a$+$+$+'xcalc$1!!myTa$'$`$&$&$&%d'xcalc!!$&+inf\x0a$+$+$+'xcalc$1!!myTable], :join [:myTable], :left-join [], :right-join [[:myTable :a2] [:= :a2.confirmedemail :g2wEwPmtphgXHfWoyO4hT2N61Pq.id]]}
+
+{:select [:myTaN\x170141183460469231731687303747483648687303715884105728a"xcalc$'%n$1%pyTable], :from [:myle], :join [[:93k6P1qVx57H :a1] [:= :a1.id :g2wEwPmtphgXHfWoyO4hT2N61Pq.id]], :left-join [], :right-join [[:myTable :a2] [:= :a2.confirmedemail :g2wEwPmtphgXHfWoyO4hT2N61Pq.id]]}
+
+{:select [:myTabl$!!\x0d%s$!!!xcalc%n%#x\x0d&#000;my\r"xcalc%#x\nNaN\x0687303711425657503447303715884105728a"xcalc$&%d%smx0687303715884105728a"xcalc$'%n$1%pyTable], :from [:myle], :join [[:93k6P1qVx57H :a1] [:= :a1.id :g2wEwPmtphgXHfWoyO4hT2N61Pq.id]], :left-join [], :right-join [[:myTable :a2] [:= :a2.confirmedemail :g2wEwPmtphgXHfWoyO4hT2N61Pq.id]]}
+
+{:select [:mlTaaTablTammyTablea�ble], :from [:myle], :join [[:93k6P1qVx57H :a1] [:= :a1.id :g2wEwPmtphgXHfWoyO4hT2N61Pq.id]], :left-join [], :right-join [[:myTable :a2] [:= :a2.confirmedemail :g2wEwPmtphgXHfWoyO4hT2N61Pq.id]]}
+
+{:select [:myTa�ble], :from [:myle], :join [[:93k6P1qVx57H :a1] [:= :a1.id :g2wEwPmtphgXHfWoyO4hT2N61Pq.id]], :left-join [], :right-join [[:myTable :a2] [:= :a2.confirmedemail :g2wEwPmtphgXHfWoyO4hT2N61Pq.id]]}
+
+```
+
 ### Code walkthrough
   ./src/clj/db_fuzzer/core.clj contains the test runner engine and CLI-related functionality.
   
