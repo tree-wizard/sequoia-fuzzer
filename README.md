@@ -52,7 +52,7 @@ This functionality is in development but examples can be seen below from the REP
   
   ./src/mutations.clj - a series of string and integer mutators. This allows us to mutate strings and repalce numbers with known bad values such as:
   
-  ./src/
+  ./src/query-mutator.clj
 
 
 
